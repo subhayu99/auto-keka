@@ -62,4 +62,4 @@ if __name__ == "__main__":
     
     # run server if run_server arg is passed as yes or true
     if run_server.lower() == "run":
-        uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+        uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
