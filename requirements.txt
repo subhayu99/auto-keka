@@ -1,0 +1,12 @@
+deta
+pytz
+geopy
+uvicorn
+python-dotenv
+fastapi==0.89.0
+selenium==4.7.2
+webdriver-manager
+webdriver_manager
+chromedriver-binary-auto
+# browsermob-proxy
+# undetected_chromedriver
