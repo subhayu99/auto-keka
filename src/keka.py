@@ -68,13 +68,13 @@ class Keka:
 
     def punch(self, punch_type: config.PunchType, force: bool = False):
         if punch_type == config.PunchType.NO_PUNCH:
-            return config.SUCCESS
+            return 200, config.SUCCESS
         
         if not self.user.location_data:
             raise ValueError("Location data is not set")
 
         last_punch_status, last_punch_time = self.retrieve_state()
-        if last_punch_status == punch_type:
+        if last_punch_status == punch_type and not force:
             return 400, f"Already {config.punch_message_map[punch_type.value]}"
         
         user_current_time = self.user.user_current_time
@@ -100,9 +100,9 @@ class Keka:
             )
         
         return (
-            200, config.punch_message_map[punch_type.value]
+            (200, config.punch_message_map[punch_type.value])
             if response.status_code == 200
-            else response.status_code, response.text
+            else (response.status_code, response.text)
         )
     
     
