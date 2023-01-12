@@ -111,9 +111,7 @@ class Keka:
         if response.status_code != 200:
             logger().error("Error getting holidays! Response code:", response.status_code)
             return config.FAIL
-        data = {"data": response.json()}
-        data["email"] = self.user.email
-        db.upsert_record(config.HOLIDAYS_DB, data, self.user.email)
+        db.upsert_record(config.HOLIDAYS_DB, response.json(), self.user.email)
         return config.SUCCESS
 
 
@@ -234,7 +232,7 @@ class Keka:
             if token:
                 request_log = json.loads(x.get("message", "{}"))
                 request_log["email"] = self.user.email
-                db.upsert_record(config.DB_PATH+"request.json", request_log, self.user.email)
+                db.upsert_record("requests", request_log, self.user.email)
                 data["token"] = token[0]
                 data["timestamp"] = datetime.now(self.user.timezone).isoformat()
                 break

@@ -16,12 +16,12 @@ x = Keka(user)
     "/punch/{punch_type}/", 
     description="**0** for `Punch In`, **1** for `Punch Out`, **2** for `No Punch`"
 )
-async def punch(punch_type: config.PunchType, force: bool = False):
+def punch(punch_type: config.PunchType, force: bool = False):
     return x.punch(punch_type, force=force)
 
 
 @app.get("/get_token_age/")
-async def get_token_age():
+def get_token_age():
     token_age, timestamp = x.get_token_age(auto_load=True)
     return {
         "token_age": token_age.total_seconds(),
@@ -31,7 +31,7 @@ async def get_token_age():
 
 
 @app.get("/retrieve_state/")
-async def retrieve_state():
+def retrieve_state():
     punch_status, timestamp = x.retrieve_state()
     punch_message = config.punch_message_map[punch_status.value]
     return {
@@ -45,12 +45,12 @@ async def retrieve_state():
 
 @app.get("/refresh_token/")
 async def refresh_token():
-    x.refresh_token(headless=False)
+    x.refresh_token(headless=True)
     return get_token_age()
 
 
 @app.get("/help/")
-async def api_help():
+def api_help():
     return {"punch_types": config.PunchType.__members__}
 
 
