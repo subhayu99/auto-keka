@@ -100,9 +100,9 @@ class Keka:
             )
         
         return (
-            config.punch_message_map[punch_type.value]
+            200, config.punch_message_map[punch_type.value]
             if response.status_code == 200
-            else config.FAIL
+            else response.status_code, response.text
         )
     
     

@@ -5,6 +5,7 @@ from src.user import User
 from src.keka import Keka
 from fastapi import FastAPI
 from datetime import datetime
+from fastapi.responses import PlainTextResponse
 
 app = FastAPI(title="Auto Keka", description="Automation API for Keka", version="0.0.1")
 
@@ -17,7 +18,8 @@ x = Keka(user)
     description="**0** for `Punch In`, **1** for `Punch Out`, **2** for `No Punch`"
 )
 def punch(punch_type: config.PunchType, force: bool = False):
-    return x.punch(punch_type, force=force)
+    status_code, message = x.punch(punch_type, force=force)
+    return PlainTextResponse(message, status_code=status_code)
 
 
 @app.get("/get_token_age/")
