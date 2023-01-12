@@ -75,11 +75,11 @@ class Keka:
 
         last_punch_status, last_punch_time = self.retrieve_state()
         if last_punch_status == punch_type:
-            return f"Already {config.punch_message_map[punch_type.value]}"
+            return 400, f"Already {config.punch_message_map[punch_type.value]}"
         
         user_current_time = self.user.user_current_time
         if self.is_holiday_or_weekend(user_current_time.date()) and not force:
-            return "It's a holiday or weekend. Not punching"
+            return 400, "It's a holiday or weekend. Not punching"
         
         json_data = {
             "attendanceLogSource": 1,
@@ -96,7 +96,7 @@ class Keka:
             logger().info(config.punch_message_map[punch_type.value])
         else:
             logger().error(
-                f"Error!!! Status Code: {response.status_code}, Response: {response.json()}"
+                f"Error!!! Status Code: {response.status_code}, Response: {response.text}"
             )
         
         return (
