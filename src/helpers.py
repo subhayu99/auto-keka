@@ -65,6 +65,8 @@ def get_chrome_driver(headless=False, enable_logs=False, proxy=""):
     options = Options()
     options.headless = headless
     options.add_argument("--incognito")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     if enable_logs:
         options.set_capability(
             "goog:loggingPrefs", {"performance": "ALL", "browser": "ALL"}

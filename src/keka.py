@@ -61,7 +61,7 @@ class Keka:
         if not holidays or is_first_day_of_year:
             self.ingest_holidays()
             holidays = db.read_record(config.HOLIDAYS_DB, self.user.email)
-        is_holiday = dt in [datetime.fromisoformat(holiday.get("date")).date() for holiday in holidays]
+        is_holiday = dt in [datetime.fromisoformat(holiday.get("date")).date() for holiday in holidays.get("value")]
         is_weekend = dt.weekday() in [5, 6]
         return is_holiday or is_weekend
 
