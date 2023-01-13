@@ -25,6 +25,10 @@ SUCCESS = "Success"
 FAIL = "Fail"
 
 
+class AllowedPunchType(IntEnum):
+    PUNCH_IN = 0
+    PUNCH_OUT = 1
+
 class PunchType(IntEnum):
     PUNCH_IN = 0
     PUNCH_OUT = 1

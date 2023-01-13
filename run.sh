@@ -21,8 +21,7 @@ fi
 read -p "Do you want to start the backend? [y|N]: " runBackend
 
 if [ "$runBackend" == "y" ]; then
-    if ! command -v docker &> /dev/null
-    then
+    if ! command -v docker &> /dev/null; then
         echo "Docker could not be found"
         echo "visit this url (https://docs.docker.com/get-docker/) to install docker on your system"
         echo "Run this script once it is installed"
@@ -35,4 +34,15 @@ if [ "$runBackend" == "y" ]; then
     echo "running auto-keka image with container id: $(sudo docker ps -q -f ancestor=auto-keka)"
     echo
     echo "visit http://0.0.0.0:5000/docs to see the api docs"
+fi
+
+
+read -p "Do you want to add cron job? [y|N]: " addCronJobs
+if [ "$addCronJobs" == "y" ]; then
+    echo "Adding cron job"
+    crontab -l > mycron
+    echo "0 10,19 * * 1-5 sleep $[($RANDOM % 1800) + 1]s && curl http://0.0.0.0/punch/" >> mycron
+    crontab mycron
+    rm mycron
+    echo "Cron job added successfully for 10:00 AM and 7:00 PM every weekday"
 fi

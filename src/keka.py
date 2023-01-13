@@ -66,7 +66,7 @@ class Keka:
         return is_holiday or is_weekend
 
 
-    def punch(self, punch_type: config.PunchType, force: bool = False):
+    def punch(self, punch_type: config.PunchType | None = None, force: bool = False):
         if punch_type == config.PunchType.NO_PUNCH:
             return 200, config.SUCCESS
         
@@ -74,6 +74,13 @@ class Keka:
             raise ValueError("Location data is not set")
 
         last_punch_status, last_punch_time = self.retrieve_state()
+        
+        # If punch_type is not provided, then we will punch the opposite of the last punch
+        if punch_type is None:
+            punch_type = config.PunchType(1 - (
+                last_punch_status.value if last_punch_status.value in [0, 1] else 1
+            ))
+        
         if last_punch_status == punch_type and not force:
             return 400, f"Already {config.punch_message_map[punch_type.value]}"
         
