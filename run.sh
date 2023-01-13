@@ -1,21 +1,19 @@
 #!/bin/bash
 
-if [ -f .env ]; then
-    echo ".env file exists"
+if grep -q -E 'KEKA_USERNAME|KEKA_PASSWORD|USER_LAT|USER_LNG' .env; then
+    echo ".env file contains the required environment variables"
 else
-    echo ".env file does not exist"
+    echo ".env file does not contain the required environment variables. Filling it up now"
     
     read -p "Please enter your KEKA_USERNAME: " KEKA_USERNAME
     read -p "Please enter your KEKA_PASSWORD: " KEKA_PASSWORD
     read -p "Please enter your LATITUDE: " USER_LAT
     read -p "Please enter your LONGITUDE: " USER_LNG
-    read -p "Please enter your DETA_PROJECT_KEY: " DETA_PROJECT_KEY
 
     echo "KEKA_USERNAME=$KEKA_USERNAME" >> .env
     echo "KEKA_PASSWORD=$KEKA_PASSWORD" >> .env
     echo "USER_LAT=$USER_LAT" >> .env
     echo "USER_LNG=$USER_LNG" >> .env
-    echo "DETA_PROJECT_KEY=$DETA_PROJECT_KEY" >> .env
 
     echo "Environment variables written to .env file"
 fi
