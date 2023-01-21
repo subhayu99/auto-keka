@@ -172,16 +172,16 @@ def get_delta_day_hr_min_sec(td: timedelta):
     return days, hours, minutes, seconds
 
 
-def format_time_delta(pre: str, td: timedelta, post: str):
+def format_time_delta(pre: str = '', td: timedelta = timedelta(seconds=0), post: str = ''):
     day, hr, min, sec = get_delta_day_hr_min_sec(td)
     message = pre
     if day:
-        message += f"{int(day)} days, "
+        message += f"{int(day)} day{'s' if day!=1 else ''}, "
     if hr:
-        message += f"{int(hr)} hours, "
+        message += f"{int(hr)} hour{'s' if hr!=1 else ''}, "
     if min and not day:
-        message += f"{int(min)} minutes, "
+        message += f"{int(min)} minute{'s' if min!=1 else ''}, "
     if not day and not hr:
-        message += f"{int(sec)} seconds, "
+        message += f"{int(sec)} second{'s' if sec!=1 else ''}, "
 
     return message[:-2] + post
