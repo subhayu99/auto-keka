@@ -90,15 +90,19 @@ class Keka:
             for y in x.get("timeEntries", [])
             if x.get("requestDate") == dt.isoformat()
         ]
+        if len(clockin_requests) == 0:
+            return timedelta(seconds=0)
+        df = pd.DataFrame.from_records(clockin_requests)[["punchStatus", "actualTimestamp"]]
+        if len(df)%2 == 1 or df.iloc[-1]["punchStatus"] != 1:
+            df.loc[len(df)] = [1, datetime.now().isoformat()]
         return timedelta(seconds=sum(map(
             lambda x: (datetime.fromisoformat(x[1]) - datetime.fromisoformat(x[0])).total_seconds(),
-            pd.DataFrame.from_records(clockin_requests)
-            .groupby("punchStatus")
+            df.groupby("punchStatus")
             .agg({"actualTimestamp": list})
             .transpose()
             .apply(lambda x: zip_longest(x[0], x[1], fillvalue=datetime.now()), axis=1)
             .iloc[0]
-        ))) if len(clockin_requests) > 0 else timedelta(seconds=0)
+        )))
     
 
     def get_keka_profile(self):
