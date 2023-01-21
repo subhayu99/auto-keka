@@ -1,9 +1,9 @@
 import os
 import json
 import config
+from typing import Literal
 from selenium import webdriver
 from datetime import datetime, timedelta
-from typing import AnyStr, Dict, Literal
 from selenium.webdriver.common.by import By
 from src.log_utils import cloud_logger as logger
 from selenium.webdriver.chrome.options import Options
@@ -13,7 +13,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def encode_password(passw: AnyStr):
+def encode_password(passw: str):
     import hashlib
     return hashlib.sha256(passw.encode()).hexdigest()
     
@@ -30,7 +30,7 @@ def reverse_geocode(lat, lng):
     return location
     
 
-def create_file_if_not_exists(file_path: AnyStr):
+def create_file_if_not_exists(file_path: str):
     os.makedirs("/".join(file_path.split("/")[:-1]), exist_ok=True)
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
@@ -39,7 +39,7 @@ def create_file_if_not_exists(file_path: AnyStr):
     return file_path
 
 
-def read_or_write_json(file_path: AnyStr, mode: Literal["w", "r"] = "r", data: Dict = {}, indent = 4):
+def read_or_write_json(file_path: str, mode: Literal["w", "r"] = "r", data: dict = {}, indent = 4):
     """
     Reads or creates a json file
     
@@ -79,7 +79,7 @@ def get_chrome_driver(headless=False, enable_logs=False, proxy=""):
     return browser
 
 
-def get_extract_return_zip_path(url: AnyStr):
+def get_extract_return_zip_path(url: str):
     import requests
     import zipfile
 
@@ -139,7 +139,7 @@ def get_log_entries(driver: WebDriver):
 
     for entry in log_entries:
         try:
-            obj_serialized: AnyStr = entry.get("message")
+            obj_serialized: str = entry.get("message")
             obj = json.loads(obj_serialized)
             message = obj.get("message")
             method = message.get("method")
@@ -172,7 +172,7 @@ def get_delta_day_hr_min_sec(td: timedelta):
     return days, hours, minutes, seconds
 
 
-def format_time_delta(pre: AnyStr, td: timedelta, post: AnyStr):
+def format_time_delta(pre: str, td: timedelta, post: str):
     day, hr, min, sec = get_delta_day_hr_min_sec(td)
     message = pre    
     if day:

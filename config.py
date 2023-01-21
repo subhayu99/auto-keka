@@ -1,6 +1,9 @@
 import os
+from src.db import get_db
 from enum import Enum, IntEnum
 from dotenv import load_dotenv
+
+DB = get_db()
 
 # read from .env file
 load_dotenv()
@@ -14,9 +17,6 @@ USER_LNG = os.environ.get("USER_LNG", 88.4112943)
 USER_TIMEZONE = os.environ.get("USER_TIMEZONE", "Asia/Kolkata")
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
-
-# used for database connection
-DETA_PROJECT_KEY = os.environ.get("DETA_PROJECT_KEY", "c0wq9nq6_eEXMEkVAKQbHfmodX6rAUK7gqLBNAvw1")
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # CHROME_DRIVER_PATH = PROJECT_ROOT + "/chromedriver"

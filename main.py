@@ -1,6 +1,7 @@
 import config
 import uvicorn
 from src import helpers
+from src.models import *
 from src.user import User
 from src.keka import Keka
 from fastapi import FastAPI
@@ -30,6 +31,7 @@ def punch(punch_type: config.AllowedPunchType, force: bool = False):
 def get_token_age():
     token_age, timestamp = x.get_token_age(auto_load=True)
     return {
+        "email": user.email,
         "token_age": token_age.total_seconds(),
         "timestamp": timestamp,
         "message": helpers.format_time_delta("Token is ", token_age, " old"),
@@ -47,6 +49,11 @@ def retrieve_state():
             f"{punch_message} ", datetime.now(user.timezone) - timestamp, " ago"
         ),
     }
+
+
+@app.get("/retrieve_user/", response_model=ReturnUser)
+def retrieve_user():
+    return user.get_user()
 
 
 @app.get("/refresh_token/")

@@ -3,13 +3,14 @@ import time
 import json
 import config
 import requests
-from src import db
 from src import user
 from src import helpers
-from typing import AnyStr, Dict, List
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from src.log_utils import cloud_logger as logger
+
+
+db = config.DB
 
 
 class Keka:
@@ -27,7 +28,7 @@ class Keka:
     
     
     def retrieve_state(self):
-        data: Dict = db.read_record(config.STATE_DB, self.user.email)
+        data: dict = db.read_record(config.STATE_DB, self.user.email)
         punch_message = config.punch_message_map[data.get("punch_status", 2)]
         punch_status = config.PunchType(data.get("punch_status", 2))
         timestamp = datetime.strptime(
@@ -41,7 +42,7 @@ class Keka:
         return punch_status, timestamp
     
     
-    def make_request(self, url: AnyStr, method: AnyStr = "GET", data: Dict = None):
+    def make_request(self, url: str, method: str = "GET", data: dict = None):
         if url.startswith("/") and config.KEKA_BASE_API_URL.endswith("/"):
             url = url[1:]
         
@@ -70,7 +71,7 @@ class Keka:
         if punch_type == config.PunchType.NO_PUNCH:
             return 200, config.SUCCESS
         
-        if not self.user.location_data:
+        if not self.user.location_data.city:
             raise ValueError("Location data is not set")
 
         last_punch_status, last_punch_time = self.retrieve_state()
@@ -90,7 +91,7 @@ class Keka:
         
         json_data = {
             "attendanceLogSource": 1,
-            "locationAddress": self.user.location_data,
+            "locationAddress": self.user.location_data.dict(),
             "manualClockinType": 3,
             "note": "",
             "originalPunchStatus": punch_type.value,
@@ -133,7 +134,7 @@ class Keka:
         return config.SUCCESS
 
 
-    def ingest_leave_summary(self, for_date: AnyStr = None):
+    def ingest_leave_summary(self, for_date: str = None):
         for_date = for_date or datetime.now(self.user.timezone).strftime("%Y-%m-%d")
         response = self.make_request(f"me/leave/summary?forDate={for_date}")
         if response.status_code != 200:
@@ -147,7 +148,7 @@ class Keka:
 
     def get_token_age(self, timestamp: datetime = None, now: datetime = None, auto_load = False):
         if auto_load:
-            data: Dict = db.read_record(config.TOKEN_DB, self.user.email) or {}
+            data: dict = db.read_record(config.TOKEN_DB, self.user.email) or {}
             saved_email = data.get("email", "")
             timestamp = (
                 datetime(2020, 1, 1, tzinfo=self.user.timezone)
@@ -168,7 +169,7 @@ class Keka:
     def get_token(
         self, max_age: timedelta = timedelta(days=6, hours=12), max_retries: int = 3
     ):
-        data: Dict = db.read_record(config.TOKEN_DB, self.user.email) or {}
+        data: dict = db.read_record(config.TOKEN_DB, self.user.email)
         
         saved_email = data.get("email", "")
         timestamp = data.get("timestamp")
@@ -199,7 +200,7 @@ class Keka:
         return token
 
 
-    def login(self, email: AnyStr, password: AnyStr, headless=False):
+    def login(self, email: str, password: str, headless=False):
         driver = helpers.get_chrome_driver(headless=headless, enable_logs=True)
         driver.get(config.KEKA_LOGIN_URL)
         time.sleep(15)
@@ -231,7 +232,7 @@ class Keka:
             logger().exception("Email or password is not set")
         
         driver = self.login(self.user.email, self.user.passw, headless=headless)
-        request_logs: List[Dict] = driver.get_log("performance")
+        request_logs: list[dict] = driver.get_log("performance")
         data = {"email": self.user.email}
 
         for x in request_logs:

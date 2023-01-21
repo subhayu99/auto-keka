@@ -1,6 +1,7 @@
 deta
 pytz
 geopy
+tinydb
 uvicorn
 python-dotenv
 fastapi==0.89.0
@@ -9,5 +10,9 @@ webdriver-manager
 webdriver_manager
 chromedriver-binary
 chromedriver-binary-auto
+
 # browsermob-proxy
 # undetected_chromedriver
+
+# passlib
+# python-jose[cryptography]
