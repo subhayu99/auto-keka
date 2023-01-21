@@ -16,7 +16,7 @@ from selenium.webdriver.support import expected_conditions as EC
 def encode_password(passw: str):
     import hashlib
     return hashlib.sha256(passw.encode()).hexdigest()
-    
+
 
 def reverse_geocode(lat, lng):
     from geopy.geocoders import Nominatim
@@ -28,26 +28,26 @@ def reverse_geocode(lat, lng):
     except GeocoderUnavailable:
         return None
     return location
-    
+
 
 def create_file_if_not_exists(file_path: str):
     os.makedirs("/".join(file_path.split("/")[:-1]), exist_ok=True)
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
             json.dump({}, f) if file_path.endswith(".json") else f.write("")
-    
+
     return file_path
 
 
 def read_or_write_json(file_path: str, mode: Literal["w", "r"] = "r", data: dict = {}, indent = 4):
     """
     Reads or creates a json file
-    
+
     Args:
         file_path: path to the file
         data: data to be written to the file
         mode: `w` for write and `r` for read
-    
+
     Returns:
         None if mode is `w` and loaded json if mode is `r`
     """
@@ -160,7 +160,7 @@ def get_time_delta(start_time, end_time):
     start_time = datetime.fromisoformat(start_time) if isinstance(start_time, str) else start_time
     end_time = datetime.fromisoformat(end_time) if isinstance(end_time, str) else end_time
     time_delta = end_time - start_time
-    
+
     return time_delta
 
 
@@ -168,13 +168,13 @@ def get_delta_day_hr_min_sec(td: timedelta):
     minutes, seconds = divmod(td.total_seconds(), 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    
+
     return days, hours, minutes, seconds
 
 
 def format_time_delta(pre: str, td: timedelta, post: str):
     day, hr, min, sec = get_delta_day_hr_min_sec(td)
-    message = pre    
+    message = pre
     if day:
         message += f"{int(day)} days, "
     if hr:
@@ -183,5 +183,5 @@ def format_time_delta(pre: str, td: timedelta, post: str):
         message += f"{int(min)} minutes, "
     if sec and not day and not hr:
         message += f"{int(sec)} seconds, "
-    
+
     return message[:-2] + post

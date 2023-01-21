@@ -64,6 +64,6 @@ class User:
             addressLine1=address,
             addressLine2=location.raw.get("address", {}).get("city"),
         ) if location else LocationData()
-        
+
         db.upsert_record(config.LOCATION_DB, location_data.dict(), f"{lat},{lng}")
         return location_data

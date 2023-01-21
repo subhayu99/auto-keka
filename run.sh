@@ -4,7 +4,7 @@ if grep -q -E 'KEKA_USERNAME|KEKA_PASSWORD|USER_LAT|USER_LNG' .env; then
     echo ".env file contains the required environment variables"
 else
     echo ".env file does not contain the required environment variables. Filling it up now"
-    
+
     read -p "Please enter your KEKA_USERNAME: " KEKA_USERNAME
     read -p "Please enter your KEKA_PASSWORD: " KEKA_PASSWORD
     read -p "Please enter your LATITUDE: " USER_LAT

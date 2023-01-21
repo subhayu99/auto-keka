@@ -47,8 +47,6 @@ STATE_DB = "state"
 TOKEN_DB = "token"
 LOCATION_DB = "location"
 HOLIDAYS_DB = "holidays"
-LEAVE_SUMMARY_DB = "leave_summary"
-PENDING_APPROVALS_DB = "pending_approvals"
 
 
 KEKA_SUBDOMAIN = os.environ.get("KEKA_SUBDOMAIN", "fiftyfive")
