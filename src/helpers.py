@@ -181,7 +181,7 @@ def format_time_delta(pre: str, td: timedelta, post: str):
         message += f"{int(hr)} hours, "
     if min and not day:
         message += f"{int(min)} minutes, "
-    if sec and not day and not hr:
+    if not day and not hr:
         message += f"{int(sec)} seconds, "
 
     return message[:-2] + post

@@ -5,7 +5,7 @@ from src.models import *
 from src.user import User
 from src.keka import Keka
 from fastapi import FastAPI
-from datetime import datetime
+from datetime import datetime, date
 from fastapi.responses import PlainTextResponse
 
 app = FastAPI(title="Auto Keka", description="Automation API for Keka", version="0.0.1")
@@ -25,6 +25,16 @@ def punch_with_given_type(punch_type: config.AllowedPunchType, force: bool = Fal
     punch_type = config.PunchType(punch_type.value)
     status_code, message = keka.punch(punch_type, force=force)
     return PlainTextResponse(message, status_code=status_code)
+
+
+@app.get("/get_work_time_for_date", description="Gives total working time for a given date. Date format: `YYYY-MM-DD`")
+def get_work_time_for_date(for_date: str):
+    work_time = keka.get_work_time_for_date(for_date:=date.fromisoformat(for_date))
+    return {
+        "total_seconds": work_time.seconds,
+        "formatted_time": helpers.format_time_delta('', work_time, ''),
+        "day_of_week": for_date.strftime('%A').lower(),
+    }
 
 
 @app.get("/get_token_age/")

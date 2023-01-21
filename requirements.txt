@@ -2,6 +2,7 @@ deta
 pytz
 geopy
 tinydb
+pandas
 uvicorn
 python-dotenv
 fastapi==0.89.0

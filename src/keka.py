@@ -3,8 +3,10 @@ import time
 import json
 import config
 import requests
+import pandas as pd
 from src import user
 from src import helpers
+from itertools import zip_longest
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from src.log_utils import cloud_logger as logger
@@ -76,6 +78,28 @@ class Keka:
             params={"fromDate": dt.isoformat(), "toDate": dt.isoformat()}
         )
 
+
+    def get_work_time_for_date(self, dt: datetime):
+        data = self.get_or_ingest_data(
+            "/mytime/attendance/attendancerequests",
+            params={"fromDate": dt.isoformat(), "toDate": dt.isoformat()},
+        )
+        clockin_requests = [
+            y
+            for x in data.get("remoteClockInRequests", [])
+            for y in x.get("timeEntries", [])
+            if x.get("requestDate") == dt.isoformat()
+        ]
+        return timedelta(seconds=sum(map(
+            lambda x: (datetime.fromisoformat(x[1]) - datetime.fromisoformat(x[0])).total_seconds(),
+            pd.DataFrame.from_records(clockin_requests)
+            .groupby("punchStatus")
+            .agg({"actualTimestamp": list})
+            .transpose()
+            .apply(lambda x: zip_longest(x[0], x[1], fillvalue=datetime.now()), axis=1)
+            .iloc[0]
+        ))) if len(clockin_requests) > 0 else timedelta(seconds=0)
+    
 
     def get_keka_profile(self):
         return self.get_or_ingest_data("/me/publicprofile")
