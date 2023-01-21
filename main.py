@@ -15,13 +15,13 @@ x = Keka(user)
 
 
 @app.get("/punch/", description="`Punch In` or `Punch Out` based on last punch status")
-def punch(force: bool = False):
+def punch_with_opposite_type(force: bool = False):
     status_code, message = x.punch(force=force)
     return PlainTextResponse(message, status_code=status_code)
 
 
 @app.get("/punch/{punch_type}/", description="**0** for `Punch In`, **1** for `Punch Out`")
-def punch(punch_type: config.AllowedPunchType, force: bool = False):
+def punch_with_given_type(punch_type: config.AllowedPunchType, force: bool = False):
     punch_type = config.PunchType(punch_type.value)
     status_code, message = x.punch(punch_type, force=force)
     return PlainTextResponse(message, status_code=status_code)
