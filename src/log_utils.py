@@ -29,6 +29,6 @@ def create_logger(level=logging.DEBUG):
     return logger
 
 
-def cloud_logger(level=logging.DEBUG):
+def cloud_logger(level=logging.INFO):
     create_logger(level)
     return logging.getLogger()
