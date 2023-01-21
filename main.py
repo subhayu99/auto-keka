@@ -32,7 +32,7 @@ def get_work_time_for_date(for_date: str):
     work_time = keka.get_work_time_for_date(for_date:=date.fromisoformat(for_date))
     return {
         "total_seconds": work_time.seconds,
-        "formatted_time": helpers.format_time_delta('', work_time, ''),
+        "formatted_time": helpers.format_time_delta(td=work_time),
         "day_of_week": for_date.strftime('%A').lower(),
     }
 
