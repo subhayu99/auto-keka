@@ -20,7 +20,7 @@ class Keka:
         data = {
             "email": self.user.email,
             "punch_status": punch_type.value,
-            "timestamp": self.user.user_current_time.isoformat(),
+            "timestamp": datetime.now(self.user.timezone).isoformat(),
         }
         db.upsert_record(config.STATE_DB, data, self.user.email)
         logger().info("Saved state") 
@@ -84,7 +84,7 @@ class Keka:
         if last_punch_status == punch_type and not force:
             return 400, f"Already {config.punch_message_map[punch_type.value]}"
         
-        user_current_time = self.user.user_current_time
+        user_current_time = datetime.now(self.user.timezone)
         if self.is_holiday_or_weekend(user_current_time.date()) and not force:
             return 400, "It's a holiday or weekend. Not punching"
         
@@ -134,7 +134,7 @@ class Keka:
 
 
     def ingest_leave_summary(self, for_date: AnyStr = None):
-        for_date = for_date or self.user.user_current_time.strftime("%Y-%m-%d")
+        for_date = for_date or datetime.now(self.user.timezone).strftime("%Y-%m-%d")
         response = self.make_request(f"me/leave/summary?forDate={for_date}")
         if response.status_code != 200:
             logger().error("Error getting leave summary! Response code:", response.status_code)
