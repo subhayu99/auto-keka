@@ -2,8 +2,10 @@ import os
 from src.db import get_db
 from enum import Enum, IntEnum
 from dotenv import load_dotenv
+from src.log_utils import get_logger
 
 DB = get_db()
+LOGGER = get_logger()
 
 # read from .env file
 load_dotenv()

@@ -3,9 +3,9 @@ import json
 import config
 from typing import Literal
 from selenium import webdriver
+from src.models import LogModel
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
-from src.log_utils import cloud_logger as logger
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
@@ -185,3 +185,15 @@ def format_time_delta(pre: str = '', td: timedelta = timedelta(seconds=0), post:
         message += f"{int(sec)} second{'s' if sec!=1 else ''}, "
 
     return message[:-2] + post
+
+
+def get_logs(length: int = 100):
+    if not os.path.exists("nohup.out"):
+        return []
+    with open("nohup.out") as f:
+        logs = f.read()
+        log_model_keys = list(LogModel.schema().get("properties", {}).keys())
+        valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
+        valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
+    length = length if length >= 0 else len(valid_logs)
+    return valid_logs[-length:]

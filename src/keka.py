@@ -9,10 +9,10 @@ from src import helpers
 from itertools import zip_longest
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
-from src.log_utils import cloud_logger as logger
 
 
 db = config.DB
+logger = config.LOGGER
 
 
 class Keka:
@@ -26,7 +26,7 @@ class Keka:
             "timestamp": datetime.now(self.user.timezone).isoformat(),
         }
         db.upsert_record(config.STATE_DB, data, self.user.email)
-        logger().info("Saved state")
+        logger.info("Saved state")
 
 
     def retrieve_state(self):
@@ -40,7 +40,7 @@ class Keka:
         message = helpers.format_time_delta(
             f"{punch_message} ", datetime.now(self.user.timezone) - timestamp, " ago"
         )
-        logger().info(message)
+        logger.info(message)
         return punch_status, timestamp
 
 
@@ -64,7 +64,7 @@ class Keka:
     ):
         response = self.make_request(url, method=method, data=data, params=params)
         if response.status_code != 200:
-            logger().error(f"Error getting {url}! Response code: {response.status_code}")
+            logger.error(f"Error getting {url}! Response code: {response.status_code}")
             return {}
         response = response.json()
         if ingest:
@@ -176,9 +176,9 @@ class Keka:
         response = self.make_request("/mytime/attendance/remoteclockin", "POST", json_data)
         if response.status_code == 200:
             self.save_state(punch_type)
-            logger().info(config.punch_message_map[punch_type.value])
+            logger.info(config.punch_message_map[punch_type.value])
         else:
-            logger().error(
+            logger.error(
                 f"Error!!! Status Code: {response.status_code}, Response: {response.text}"
             )
 
@@ -201,7 +201,7 @@ class Keka:
 
         now = now if now else datetime.now(self.user.timezone)
         token_age = now - timestamp
-        logger().log(
+        logger.log(
             20 if auto_load else 10,
             helpers.format_time_delta("Token is ", token_age, " old"),
         )
@@ -228,7 +228,7 @@ class Keka:
 
         while token_age > max_age and max_retries > 0:
             if token_age > max_age:
-                logger().info(f"Token was last refreshed at {timestamp}. Refreshing token...")
+                logger.info(f"Token was last refreshed at {timestamp}. Refreshing token...")
                 data = self.refresh_token()
             token_age, _ = self.get_token_age(
                 datetime.strptime(
@@ -236,7 +236,7 @@ class Keka:
                 )
             )
             max_retries -= 1
-            logger().info(f"Retrying to get token. Retries left: {max_retries}")
+            logger.info(f"Retrying to get token. Retries left: {max_retries}")
 
         token = data.get("token")
         return token
@@ -263,7 +263,7 @@ class Keka:
             '//*[@id="login-container-center"]/div/div/form/div/div[4]/div/button',
         ).click()
         # TODO: Add a check to see if login was successful
-        logger().info("Login successful")
+        logger.info("Login successful")
         time.sleep(5)
 
         return driver
@@ -271,7 +271,7 @@ class Keka:
 
     def refresh_token(self, headless=True):
         if not (self.user.email and self.user.passw):
-            logger().exception("Email or password is not set")
+            logger.exception("Email or password is not set")
 
         driver = self.login(self.user.email, self.user.passw, headless=headless)
         request_logs: list[dict] = driver.get_log("performance")
@@ -289,9 +289,9 @@ class Keka:
 
         if "token" in data:
             db.upsert_record(config.TOKEN_DB, data, self.user.email)
-            logger().info(f"Token has been updated!")
+            logger.info(f"Token has been updated!")
         else:
-            logger().info("Token not found!")
+            logger.info("Token not found!")
 
         return data
 

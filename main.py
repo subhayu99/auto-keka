@@ -1,4 +1,6 @@
 import os
+
+import psutil
 import config
 import uvicorn
 from src import helpers
@@ -28,28 +30,7 @@ def punch_with_given_type(punch_type: config.AllowedPunchType, force: bool = Fal
     return PlainTextResponse(message, status_code=status_code)
 
 
-@app.get("/get_work_time_for_date", description="Gives total working time for a given date. Date format: `YYYY-MM-DD`")
-def get_work_time_for_date(for_date: str):
-    work_time = keka.get_work_time_for_date(for_date:=date.fromisoformat(for_date))
-    return {
-        "total_seconds": work_time.total_seconds(),
-        "formatted_time": helpers.format_time_delta(td=work_time),
-        "day_of_week": for_date.strftime('%A').lower(),
-    }
-
-
-@app.get("/get_token_age")
-def get_token_age():
-    token_age, timestamp = keka.get_token_age(auto_load=True)
-    return {
-        "email": user.email,
-        "token_age": token_age.total_seconds(),
-        "timestamp": timestamp,
-        "message": helpers.format_time_delta("Token is ", token_age, " old"),
-    }
-
-
-@app.get("/get_punch_state")
+@app.get("/punch/get_state")
 def get_punch_state():
     punch_status, timestamp = keka.retrieve_state()
     punch_message = config.punch_message_map[punch_status.value]
@@ -62,33 +43,52 @@ def get_punch_state():
     }
 
 
-@app.get("/get_user", response_model=ReturnUser)
-def get_user():
-    return user.get_user()
-
-
-@app.get("/get_keka_profile")
-def get_keka_profile():
-    return keka.get_keka_profile()
-
-
-@app.get("/refresh_token")
+@app.get("/token/refresh")
 async def refresh_token():
     keka.refresh_token(headless=True)
     return get_token_age()
 
 
-@app.get("/get_scheduler_logs", response_model=list[LogModel])
+@app.get("/token/age")
+def get_token_age():
+    token_age, timestamp = keka.get_token_age(auto_load=True)
+    return {
+        "email": user.email,
+        "token_age": token_age.total_seconds(),
+        "timestamp": timestamp,
+        "message": helpers.format_time_delta("Token is ", token_age, " old"),
+    }
+
+
+@app.get("/user/details", response_model=ReturnUser)
+def get_user():
+    return user.get_user()
+
+
+@app.get("/user/keka_profile")
+def get_keka_profile():
+    return keka.get_keka_profile()
+
+
+@app.get("/user/work_time_for_date", description="Gives total working time for a given date. Date format: `YYYY-MM-DD`")
+def get_work_time_for_date(for_date: str):
+    work_time = keka.get_work_time_for_date(for_date:=date.fromisoformat(for_date))
+    return {
+        "total_seconds": work_time.total_seconds(),
+        "formatted_time": helpers.format_time_delta(td=work_time),
+        "day_of_week": for_date.strftime('%A').lower(),
+    }
+
+
+@app.get("/scheduler/is_running", response_model=bool)
+def is_scheduler_running():
+    return bool([x for x in psutil.process_iter(["pid", "name"]) if x.cmdline() and "schedule.py" in x.cmdline()])
+
+
+
+@app.get("/scheduler/get_logs", response_model=list[LogModel])
 def get_scheduler_logs(length: int = 100):
-    if not os.path.exists("nohup.out"):
-        return []
-    with open("nohup.out") as f:
-        logs = f.read()
-        log_model_keys = list(LogModel.schema().get("properties", {}).keys())
-        valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
-        valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
-    length = length if length >= 0 else len(valid_logs)
-    return valid_logs[-length:]
+    return helpers.get_logs(length)
 
 
 if __name__ == "__main__":

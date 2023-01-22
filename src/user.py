@@ -3,10 +3,10 @@ from src import helpers
 from src.models import *
 from datetime import datetime
 from pytz import timezone, country_timezones
-from src.log_utils import cloud_logger as logger
 
 
 db = config.DB
+logger = config.LOGGER
 
 class User:
     def __init__(self, email: str = None, passw: str = None, lat=None, lng=None):
@@ -34,7 +34,7 @@ class User:
             timestamp=self.current_time.isoformat(),
         )
         db.upsert_record(config.USERS_DB, data.dict(), self.email)
-        logger().info(f"Saved user {self.email}")
+        logger.info(f"Saved user {self.email}")
 
 
     def get_user(self):
@@ -45,15 +45,15 @@ class User:
         location_data = db.read_record(config.LOCATION_DB, f"{lat},{lng}", [])
         if location_data:
             location_data = LocationData.parse_obj(location_data)
-            logger().info(f"Using cached location: {location_data.addressLine1}")
+            logger.info(f"Using cached location: {location_data.addressLine1}")
             return location_data
 
         location = helpers.reverse_geocode(lat, lng)
         address = location.address if location else None
         if not location:
-            logger().error("Unable to reverse geocode location")
+            logger.error("Unable to reverse geocode location")
         else:
-            logger().info(f"Using Location: {address}")
+            logger.info(f"Using Location: {address}")
         location_data = LocationData(
             latitude=lat,
             longitude=lng,
