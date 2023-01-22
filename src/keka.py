@@ -269,7 +269,7 @@ class Keka:
         return driver
 
 
-    def refresh_token(self, headless=False):
+    def refresh_token(self, headless=True):
         if not (self.user.email and self.user.passw):
             logger().exception("Email or password is not set")
 

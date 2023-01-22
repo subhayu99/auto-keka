@@ -4,6 +4,7 @@ geopy
 tinydb
 pandas
 uvicorn
+scheduler
 python-dotenv
 fastapi==0.89.0
 selenium==4.7.2

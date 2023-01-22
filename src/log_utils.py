@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+from datetime import datetime
 
 
 class CloudLoggingFormatter(logging.Formatter):
@@ -12,7 +13,7 @@ class CloudLoggingFormatter(logging.Formatter):
             {
                 "message": s,
                 "severity": record.levelname,
-                "timestamp": {"seconds": int(record.created), "nanos": 0},
+                "timestamp": datetime.fromtimestamp(record.created).isoformat()[:-7],
             }
         )
 
