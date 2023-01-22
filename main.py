@@ -1,3 +1,4 @@
+import os
 import config
 import uvicorn
 from src import helpers
@@ -14,13 +15,13 @@ user = User()
 keka = Keka(user)
 
 
-@app.get("/punch/", description="`Punch In` or `Punch Out` based on last punch status")
+@app.get("/punch", description="`Punch In` or `Punch Out` based on last punch status")
 def punch_with_opposite_type(force: bool = False):
     status_code, message = keka.punch(force=force)
     return PlainTextResponse(message, status_code=status_code)
 
 
-@app.get("/punch/{punch_type}/", description="**0** for `Punch In`, **1** for `Punch Out`")
+@app.get("/punch/{punch_type}", description="**0** for `Punch In`, **1** for `Punch Out`")
 def punch_with_given_type(punch_type: config.AllowedPunchType, force: bool = False):
     punch_type = config.PunchType(punch_type.value)
     status_code, message = keka.punch(punch_type, force=force)
@@ -37,7 +38,7 @@ def get_work_time_for_date(for_date: str):
     }
 
 
-@app.get("/get_token_age/")
+@app.get("/get_token_age")
 def get_token_age():
     token_age, timestamp = keka.get_token_age(auto_load=True)
     return {
@@ -48,8 +49,8 @@ def get_token_age():
     }
 
 
-@app.get("/retrieve_state/")
-def retrieve_state():
+@app.get("/get_punch_state")
+def get_punch_state():
     punch_status, timestamp = keka.retrieve_state()
     punch_message = config.punch_message_map[punch_status.value]
     return {
@@ -61,20 +62,33 @@ def retrieve_state():
     }
 
 
-@app.get("/retrieve_user/", response_model=ReturnUser)
-def retrieve_user():
+@app.get("/get_user", response_model=ReturnUser)
+def get_user():
     return user.get_user()
 
 
-@app.get("/get_keka_profile/")
+@app.get("/get_keka_profile")
 def get_keka_profile():
     return keka.get_keka_profile()
 
 
-@app.get("/refresh_token/")
+@app.get("/refresh_token")
 async def refresh_token():
     keka.refresh_token(headless=True)
     return get_token_age()
+
+
+@app.get("/get_scheduler_logs", response_model=list[LogModel])
+def get_scheduler_logs(length: int = 100):
+    if not os.path.exists("nohup.out"):
+        return []
+    with open("nohup.out") as f:
+        logs = f.read()
+        log_model_keys = list(LogModel.schema().get("properties", {}).keys())
+        valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
+        valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
+    length = length if length >= 0 else len(valid_logs)
+    return valid_logs[-length:]
 
 
 if __name__ == "__main__":

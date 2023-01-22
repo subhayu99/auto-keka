@@ -22,3 +22,8 @@ class DbUser(BaseUser):
     lng: str
     passw: str
     timestamp: str
+    
+class LogModel(BaseModel):
+    message: str
+    severity: str
+    timestamp: str
