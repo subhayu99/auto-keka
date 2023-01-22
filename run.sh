@@ -35,7 +35,7 @@ if [ "$runBackend" == "y" ]; then
 
     echo "killing container $(sudo docker ps -q -f ancestor=auto-keka)"
     sudo docker stop $(sudo docker ps -q -f ancestor=auto-keka) &> /dev/null
-    sudo docker build -t auto-keka . --no-cache &> /dev/null
+    sudo docker build -t auto-keka . --no-cache # &> /dev/null
     sudo docker run -dp 5000:5000 auto-keka &> /dev/null
     echo "running auto-keka image with container id: $(sudo docker ps -q -f ancestor=auto-keka)"
     echo
