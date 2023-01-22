@@ -28,9 +28,9 @@ if [ "$runBackend" == "y" ]; then
         exit
     fi
 
-    read -p "Do you want to run the scheduler alongside? [y|N]: " runScheduler
+    read -p "Do you want to run the built-in scheduler? [y|N]: " runScheduler
     if [ "$runScheduler" == "y" ]; then
-        sed -i 's/^RUN nohup/# RUN nohup/g' Dockerfile
+        sed -i 's/^# RUN nohup/RUN nohup/g' Dockerfile
     fi
 
     echo "killing container $(sudo docker ps -q -f ancestor=auto-keka)"
@@ -40,7 +40,7 @@ if [ "$runBackend" == "y" ]; then
     echo "running auto-keka image with container id: $(sudo docker ps -q -f ancestor=auto-keka)"
     echo
     echo "visit http://0.0.0.0:5000/docs to see the api docs"
-    sed -i 's/^# RUN nohup/RUN nohup/g' Dockerfile
+    sed -i 's/^RUN nohup/# RUN nohup/g' Dockerfile
 fi
 
 # read -p "Do you want to add cron job? [y|N]: " addCronJobs
