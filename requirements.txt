@@ -3,6 +3,7 @@ pytz
 geopy
 tinydb
 pandas
+psutil
 uvicorn
 scheduler
 python-dotenv
