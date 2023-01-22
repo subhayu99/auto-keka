@@ -94,7 +94,12 @@ class Keka:
             return timedelta(seconds=0)
         df = pd.DataFrame.from_records(clockin_requests)[["punchStatus", "actualTimestamp"]]
         if len(df)%2 == 1 or df.iloc[-1]["punchStatus"] != 1:
-            df.loc[len(df)] = [1, datetime.now().isoformat()]
+            last_punch_ts = datetime.fromisoformat(df.iloc[-1]["actualTimestamp"])
+            df.loc[len(df)] = (
+                [1, last_punch_ts.isoformat()] if last_punch_ts.date() == dt
+                else [1, datetime.now().isoformat()]
+            )
+
         return timedelta(seconds=sum(map(
             lambda x: (datetime.fromisoformat(x[1]) - datetime.fromisoformat(x[0])).total_seconds(),
             df.groupby("punchStatus")
