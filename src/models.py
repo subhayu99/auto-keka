@@ -2,9 +2,9 @@ from pydantic import BaseModel
 
 
 class LocationData(BaseModel):
-    latitude: str | None = None
-    longitude: str | None = None
-    zip: str | None = None
+    latitude: str | float | None = None
+    longitude: str | float | None = None
+    zip: str | int | None = None
     countryCode: str = "IN"
     state: str | None = None
     city: str | None = None
