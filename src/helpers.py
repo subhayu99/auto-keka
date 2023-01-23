@@ -187,10 +187,10 @@ def format_time_delta(pre: str = '', td: timedelta = timedelta(seconds=0), post:
     return message[:-2] + post
 
 
-def get_logs(length: int = 100):
-    if not os.path.exists("nohup.out"):
+def get_logs(log_file: str, length: int = 100):
+    if not os.path.exists(log_file):
         return []
-    with open("nohup.out") as f:
+    with open(log_file) as f:
         logs = f.read()
         log_model_keys = list(LogModel.schema().get("properties", {}).keys())
         valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
