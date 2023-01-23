@@ -27,4 +27,4 @@ WORKDIR /auto-keka
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-CMD exec sh startup.sh
+CMD ./startup.sh
