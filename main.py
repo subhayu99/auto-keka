@@ -85,9 +85,9 @@ def is_scheduler_running():
     return bool([x for x in psutil.process_iter(["pid", "name"]) if x.cmdline() and "schedule.py" in x.cmdline()])
 
 
-# @app.get("/scheduler/get_logs", response_model=list[LogModel])
-# def get_scheduler_logs(length: int = 100):
-#     return helpers.get_logs("scheduler.log", length)
+@app.get("/scheduler/get_logs", response_model=list[LogModel])
+def get_scheduler_logs(length: int = 100):
+    return helpers.get_logs("scheduler.log", length)
 
 
 if __name__ == "__main__":
