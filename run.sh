@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ $# -eq 1 ] && [ $1 = "rerun"  ]; then
+    echo "killing container $(sudo docker ps -q -f ancestor=auto-keka)"
+    sudo docker stop $(sudo docker ps -q -f ancestor=auto-keka)
+    sudo docker run -dp 5000:5000 -v $(pwd)/logs:/auto-keka/logs auto-keka
+    echo "running auto-keka image with container id: $(sudo docker ps -q -f ancestor=auto-keka)"
+    exit 0
+fi
+
 if grep -q -E 'KEKA_USERNAME|KEKA_PASSWORD|USER_LAT|USER_LNG' .env; then
     echo ".env file contains the required environment variables"
 else
