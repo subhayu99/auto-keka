@@ -45,7 +45,7 @@ try:
         logger.info(
             "; ".join([
             format_time_delta(
-                f"{x.handle.__name__}{x.args.__str__()} will run after ", (x.datetime - current_time),
+                f"{x.handle.__name__}{tuple(str(y) for y in x.args)} will run after ", (x.datetime - current_time),
             ) 
             for x in schedule.get_jobs()])
         )
