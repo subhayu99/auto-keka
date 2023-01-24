@@ -58,9 +58,9 @@ if [ $1 = "start" ]; then
 
     read -p "Do you want to run the built-in scheduler? [y|N]: " runScheduler
     if [ "$runScheduler" == "y" ]; then
-        sed -i 's/^# nohup python3 schedule.py/nohup python3 schedule.py/g' startup.sh
+        sed -i 's/^# nohup python3 schedule.py/nohup python3 schedule.py/g' scripts/startup.sh
     else
-        sed -i 's/^nohup python3 schedule.py/# nohup python3 schedule.py/g' startup.sh
+        sed -i 's/^nohup python3 schedule.py/# nohup python3 schedule.py/g' scripts/startup.sh
     fi
 
     echo "killing container $(sudo docker ps -q -f ancestor=auto-keka)"
