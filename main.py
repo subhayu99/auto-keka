@@ -87,7 +87,7 @@ def is_scheduler_running():
 
 @app.get("/scheduler/get_logs", response_model=list[LogModel])
 def get_scheduler_logs(length: int = 100):
-    return helpers.get_logs("scheduler.log", length)
+    return helpers.get_logs("logs/scheduler.log", length)
 
 
 if __name__ == "__main__":
