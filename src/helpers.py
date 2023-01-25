@@ -196,4 +196,4 @@ def get_logs(log_file: str, length: int = 100):
         valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
         valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
     length = length if length >= 0 else len(valid_logs)
-    return valid_logs[-length:]
+    return valid_logs[-length:][::-1]
