@@ -22,7 +22,7 @@ def refresh_token():
 
 def punch(punch_type: config.PunchType):
     sleep_time = random.randint(2, 600)
-    logger.info(f"Sleeping for another {sleep_time} seconds before {punch_type.value}")
+    logger.info(f"Sleeping for another {sleep_time} seconds before {config.punch_message_map[punch_type.value]}")
     time.sleep(sleep_time)
     status_code, message = keka.punch(punch_type, force=False)
     logger.info(f"{message}, Status Code: {status_code}")
