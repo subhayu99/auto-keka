@@ -22,7 +22,8 @@ class TinyDB():
         if in_memory:
             self.db = tinydb.TinyDB(storage=MemoryStorage)
         else:
-            self.db = tinydb.TinyDB("data.json", storage=JSONStorage)
+            os.makedirs(db_location:="db/", exist_ok=True)
+            self.db = tinydb.TinyDB(db_location+"data.json", storage=JSONStorage)
 
     def upsert_record(self, db_path: str, data: dict, key: str = None):
         return self.db.table(db_path).upsert(data | {"key": key}, where("key") == key)
@@ -32,4 +33,4 @@ class TinyDB():
 
 
 def get_db(local: bool = False, in_memory: bool = False):
-    return TinyDB(in_memory=in_memory) if local else DetaDB()
+    return (DetaDB(), TinyDB(in_memory=in_memory)) [local]

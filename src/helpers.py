@@ -157,8 +157,8 @@ def get_log_entries(driver: WebDriver):
 
 
 def get_time_delta(start_time, end_time):
-    start_time = datetime.fromisoformat(start_time) if isinstance(start_time, str) else start_time
-    end_time = datetime.fromisoformat(end_time) if isinstance(end_time, str) else end_time
+    start_time = (start_time, datetime.fromisoformat(start_time)) [isinstance(start_time, str)]
+    end_time = (end_time, datetime.fromisoformat(end_time)) [isinstance(end_time, str)]
     time_delta = end_time - start_time
 
     return time_delta
@@ -176,13 +176,13 @@ def format_time_delta(pre: str = '', td: timedelta = timedelta(seconds=0), post:
     day, hr, min, sec = get_delta_day_hr_min_sec(td)
     message = pre
     if day:
-        message += f"{int(day)} day{'s' if day!=1 else ''}, "
+        message += f"{int(day)} day{('', 's')[day!=1]}, "
     if hr:
-        message += f"{int(hr)} hour{'s' if hr!=1 else ''}, "
+        message += f"{int(hr)} hour{('', 's')[hr!=1]}, "
     if min and not day:
-        message += f"{int(min)} minute{'s' if min!=1 else ''}, "
+        message += f"{int(min)} minute{('', 's')[min!=1]}, "
     if not day and not hr:
-        message += f"{int(sec)} second{'s' if sec!=1 else ''}, "
+        message += f"{int(sec)} second{('', 's')[sec!=1]}, "
 
     return message[:-2] + post
 
@@ -195,5 +195,5 @@ def get_logs(log_file: str, length: int = 100):
         log_model_keys = list(LogModel.schema().get("properties", {}).keys())
         valid_logs = list(filter(lambda x: [y for y in log_model_keys if y in x], logs.split("\n")))
         valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
-    length = length if length >= 0 else len(valid_logs)
+    length = (len(valid_logs), length) [length >= 0]
     return valid_logs[-length:][::-1]
