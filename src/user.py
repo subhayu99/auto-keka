@@ -1,3 +1,6 @@
+import re
+
+import requests
 import config
 from src import helpers
 from src.models import *
@@ -14,6 +17,8 @@ class User:
         self.passw = passw if passw else config.KEKA_PASSWORD
         self.lat = lat if lat else config.USER_LAT
         self.lng = lng if lng else config.USER_LNG
+        
+        self.ntfy_channel = re.sub(r'[\.@_\-]', '_', self.email)
 
         self.location_data = self.get_location(self.lat, self.lng)
 
@@ -28,6 +33,7 @@ class User:
     def save_user(self):
         data = DbUser(
             email=self.email,
+            ntfy_channel=self.ntfy_channel,
             passw=helpers.encode_password(self.passw),
             lat=self.lat,
             lng=self.lng,
@@ -35,10 +41,34 @@ class User:
         )
         db.upsert_record(config.USERS_DB, data.dict(), self.email)
         logger.info(f"Saved user {self.email}")
+        logger.info(f"For notifications, subscribe to 'https://ntfy.sh/{self.ntfy_channel}'")
 
 
     def get_user(self):
-        return ReturnUser(email=self.email, location_data=self.location_data)
+        return ReturnUser(
+            email=self.email, 
+            ntfy_channel=self.ntfy_channel, 
+            location_data=self.location_data
+        )
+    
+    
+    def notify(self, data: str, priority: NtfyPriority = NtfyPriority.Default, send_email = True):
+        resp = requests.post(
+            f"https://ntfy.sh/{self.ntfy_channel}", 
+            data=data.encode(encoding='utf-8'),
+            headers={
+                "Email": (None, self.email) [send_email],
+                "Priority": str(priority.value), 
+                "Tags": ("heavy_check_mark", "x") [priority.value > 3],
+            }
+        )
+        if resp.status_code == 200:
+            logger.info(f"Notified user {self.email!r} on 'https://ntfy.sh/{self.ntfy_channel}'")
+        else:
+            logger.error((
+                f"Couldn't notify user {self.email!r}. "
+                f"Received Status Code: {resp.status_code}, Response: {resp.text}"
+            ))
 
 
     def get_location(self, lat: str, lng: str):

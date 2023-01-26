@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from enum import IntEnum
 
 class LocationData(BaseModel):
     latitude: str | float | None = None
@@ -13,6 +13,7 @@ class LocationData(BaseModel):
 
 class BaseUser(BaseModel):
     email: str
+    ntfy_channel: str
 
 class ReturnUser(BaseUser):
     location_data: LocationData
@@ -27,3 +28,10 @@ class LogModel(BaseModel):
     message: str
     severity: str
     timestamp: str
+
+class NtfyPriority(IntEnum):
+    Max = 5
+    High = 4
+    Default = 3
+    Low = 2
+    Min = 1

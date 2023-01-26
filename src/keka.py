@@ -6,6 +6,7 @@ import requests
 import pandas as pd
 from src import user
 from src import helpers
+from src.models import *
 from itertools import zip_longest
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
@@ -77,6 +78,13 @@ class Keka:
             "/me/leave/calendarevents",
             params={"fromDate": dt.isoformat(), "toDate": dt.isoformat()}
         )
+        
+    
+    def get_last_30_days_summary(self):
+        data = self.get_or_ingest_data(
+            "https://fiftyfive.keka.com/k/attendance/api/mytime/attendance/summary",
+        )
+        return data
 
 
     def get_work_time_for_date(self, dt: datetime):
@@ -174,19 +182,18 @@ class Keka:
         }
 
         response = self.make_request("/mytime/attendance/remoteclockin", "POST", json_data)
-        if response.status_code == 200:
+        status = response.status_code
+        
+        if status == 200:
             self.save_state(punch_type)
-            logger.info(config.punch_message_map[punch_type.value])
+            logger.info(message:=config.punch_message_map[punch_type.value])
+            priority = NtfyPriority.Default
         else:
-            logger.error(
-                f"Error!!! Status Code: {response.status_code}, Response: {response.text}"
-            )
+            logger.error(message:=f"Error!!! Status Code: {status}, Response: {response.text}")
+            priority = NtfyPriority.Max
 
-        return (
-            (200, config.punch_message_map[punch_type.value])
-            if response.status_code == 200
-            else (response.status_code, response.text)
-        )
+        self.user.notify(message, priority, True)
+        return status, message
 
 
     def get_token_age(self, timestamp: datetime = None, now: datetime = None, auto_load = False):
@@ -289,10 +296,11 @@ class Keka:
 
         if "token" in data:
             db.upsert_record(config.TOKEN_DB, data, self.user.email)
-            logger.info(f"Token has been updated!")
+            logger.info(message:=f"Token has been updated!")
+            priority = NtfyPriority.Default
         else:
-            logger.info("Token not found!")
+            priority = NtfyPriority.Max
+            logger.info(message:="Couldn't refresh Token!")
 
+        self.user.notify(message, priority, True)
         return data
-
-
