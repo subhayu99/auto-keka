@@ -1,5 +1,12 @@
 import os
 import json
+
+# For encryption and decryption
+import base64
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 import config
 from typing import Literal
 from selenium import webdriver
@@ -197,3 +204,21 @@ def get_logs(log_file: str, length: int = 100):
         valid_logs = [LogModel.parse_raw(x) for x in valid_logs]
     length = (len(valid_logs), length) [length >= 0]
     return valid_logs[-length:][::-1]
+
+
+def pass_encrypt(password: str):
+    password = password.encode()
+    salt = os.urandom(16)
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100_000,
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(password))
+    token = Fernet(key).encrypt(password)
+    return token.decode(), key.decode()
+
+    
+def pass_decrypt(token: str, key: str):
+    return Fernet(key).decrypt(token.encode()).decode()
